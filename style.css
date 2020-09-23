@@ -49,3 +49,11 @@ p.feedback {
     color: red;
     font-size: 35px;
 }
+
+.item {
+    margin: 5px 0px 5px 0px;
+}
+
+#reset {
+    margin-top: 20px;
+}

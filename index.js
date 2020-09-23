@@ -62,6 +62,16 @@ window.addEventListener('load', function () {
     const feedbackBanco = document.querySelector('p.feedback-banco');
     const feedbackPlazo = document.querySelector('p.feedback-plazo');
     const dias = document.getElementById('dias');
+    const reset = document.getElementById('reset');
+
+    /* resultado */
+    const resultado = document.querySelector('div.resultado');
+    const capitalInvertido = document.getElementById('capital');
+    const tna = document.getElementById('tna');
+    const interesGanado = document.getElementById('interes-ganado');
+    const capitalTotal = document.getElementById('capital-total');
+    const cantidadDias = document.getElementById('cantidad-dias');
+
 
 
     /* Lista desplegable de bancos */
@@ -74,7 +84,14 @@ window.addEventListener('load', function () {
     invalidDias.style.display = 'none';
 
 
-    
+    new AutoNumeric('#monto', {
+        currencySymbol: "$",
+        decimalCharacter: ",",
+        digitGroupSeparator: ".",
+        unformatOnSubmit: true
+    });
+
+
     formulario.onsubmit = function (event) {
 
         event.preventDefault();
@@ -83,43 +100,59 @@ window.addEventListener('load', function () {
 
         let plazo = dias.value;
 
+        //let regexNum = /^[0-9]*$/;
 
-        /* Validacion bancos */
         if (desplegable.value == '') {
-            feedbackBanco.innerHTML += "Debe seleccionar un banco";
+
+            feedbackBanco.innerHTML = "Debe seleccionar un banco";
             feedbackBanco.style.color = 'red';
-        } else {
-            console.log(bancos[desplegable.value].tasa);
-        };
 
-        /* validacion monto */
-        if (isNaN(capital) || capital === '') {          
+        /*} else if (!regexNum.test(capital)) {
+
             invalidMonto.style.display = "block";
-            feedbackMonto.innerHTML += "El monto ingresado de ser numérico y no puede estar vacío";
+            feedbackMonto.innerHTML = "El monto ingresado de ser numérico sin puntos ni comas";
+            feedbackMonto.style.color = 'red';*/
+
+        } else if (capital === '') {
+
+            invalidMonto.style.display = "block";
+            feedbackMonto.innerHTML = "El monto no puede estar vacío";
             feedbackMonto.style.color = 'red';
-        } else {       
-            alert('es un numero!');
-            console.log(interesAnual(capital));
-            console.log(interesMensual(capital));
-        };
-        
-        /* validacion plazo de dias */ 
-        if (plazo < 30 || plazo > 365) {         
+
+        } else if (plazo < 30 || plazo > 365) {
+
             invalidDias.style.display = "block";
-            feedbackPlazo.innerHTML += "El plazo debe ser mayor a 30 dias y menor a 365";
+            feedbackPlazo.innerHTML = "El plazo debe ser mayor a 30 dias y menor a 365";
             feedbackPlazo.style.color = 'red';
-        }
 
-        console.log(capital);
+        } else {
+
+            formulario.classList.add('hide');
+            resultado.classList.remove('hide');
+            capitalInvertido.innerHTML += `$${capital}`;
+            cantidadDias.innerHTML += `${plazo} días`;
+            tna.innerHTML += bancos[desplegable.value].tasa + "%";
+            interesGanado.innerHTML += "$" + gananciaPlazoFijo(capital);
+            capitalTotal.innerHTML += "$" + gananciaTotal();
+        };
+
+        function interesAnual(capital) {
+            return ((bancos[desplegable.value].tasa * capital) / 100).toFixed(2);
+        };
+
+        function gananciaPlazoFijo(capital) {
+            return (interesAnual(capital) / 365 * plazo).toFixed(2);
+        };
+
+        function gananciaTotal() {
+            return (+capital + +gananciaPlazoFijo(capital)).toFixed(2);
+        };
+
     };
 
-
-    function interesAnual(capital) {
-        return (bancos[desplegable.value].tasa * capital) / 100;
+    reset.onclick = function () {
+        location.reload();
     };
 
-    function interesMensual(capital) {
-        return interesAnual(capital) / 365 * 30;
-    };
 
 });
